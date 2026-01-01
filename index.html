@@ -3,17 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FavShow">
+    <meta name="theme-color" content="#050505">
+    
     <title>FavShow AI Beast | t.me/favme</title>
+    
+    <link rel="manifest" href="manifest.json">
+    
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;500;800&family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root { --bg: #050505; --card: #111; --accent: #00d2ff; --ai: #a855f7; --text: #fff; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', 'Vazirmatn', sans-serif; }
-        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', 'Vazirmatn', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; -webkit-user-select: none; }
         .rtl { direction: rtl; text-align: right; font-family: 'Vazirmatn' !important; }
 
         /* Loader */
-        #main-loader { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        #main-loader { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .ai-glow { width: 60px; height: 60px; background: var(--ai); border-radius: 50%; filter: blur(20px); animation: pulse 1s infinite alternate; }
         @keyframes pulse { from { transform: scale(0.8); opacity: 0.5; } to { transform: scale(1.2); opacity: 1; } }
 
@@ -25,18 +34,15 @@
         @media (min-width: 768px) { .grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); } }
 
         .item-card { background: var(--card); border-radius: 15px; overflow: hidden; transition: 0.3s; cursor: pointer; border: 1px solid #222; position: relative; }
-        .item-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .item-card:active { transform: scale(0.95); }
         .item-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
         .card-meta { padding: 12px; }
         .rating { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: gold; padding: 3px 8px; border-radius: 6px; font-weight: 900; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }
         .ep-badge { position: absolute; top: 10px; left: 10px; background: var(--accent); color: #000; padding: 3px 8px; border-radius: 6px; font-weight: 900; font-size: 0.75rem; }
 
-        .actor-pill { flex: 0 0 100px; text-align: center; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
-        .actor-pill:hover { transform: scale(1.2); z-index: 5; }
-        .actor-pill img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 2px solid #333; transition: 0.3s; }
-        .actor-pill:hover img { border-color: var(--ai); box-shadow: 0 0 20px var(--ai); }
-        .actor-pill p { font-size: 0.7rem; margin-top: 10px; font-weight: 700; color: #888; transition: 0.3s; }
-        .actor-pill:hover p { color: #fff; }
+        .actor-pill { flex: 0 0 100px; text-align: center; cursor: pointer; }
+        .actor-pill img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; border: 2px solid #333; }
+        .actor-pill p { font-size: 0.7rem; margin-top: 10px; font-weight: 700; color: #888; }
 
         #details-view { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 2000; overflow-y: auto; padding-bottom: 50px; }
         .hero { width: 100%; height: 50vh; position: relative; }
@@ -46,19 +52,19 @@
         .ai-box { background: linear-gradient(145deg, #1a1a1a, #0a0a0a); border: 1px solid var(--ai); padding: 25px; border-radius: 25px; margin: 25px 0; box-shadow: 0 10px 30px rgba(168, 85, 247, 0.15); }
         .btn { padding: 14px 25px; border-radius: 15px; border: none; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; }
         .btn-ai { background: var(--ai); color: #fff; }
-        .btn-ai:hover { box-shadow: 0 0 20px var(--ai); }
 
-        .scroller { display: flex; gap: 15px; overflow-x: auto; padding: 15px 5px; scrollbar-width: none; }
+        .scroller { display: flex; gap: 15px; overflow-x: auto; padding: 15px 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #111; padding: 30px; border-radius: 30px; border: 1px solid var(--ai); width: 100%; max-width: 500px; position: relative; }
 
-        .genre-box { background: #111; border: 1px solid #222; padding: 15px; border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s; color: #666; font-weight: 800; }
-        .genre-box:hover { border-color: var(--accent); color: var(--accent); }
+        /* نصب اپلیکیشن دکمه */
+        #pwa-install { display: none; background: var(--ai); color: white; padding: 10px; text-align: center; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
+<div id="pwa-install" onclick="installPWA()">INSTALL FAVSHOW APP</div>
 <div id="main-loader"><div class="ai-glow"></div></div>
 
 <header>
@@ -73,17 +79,12 @@
     <input type="text" id="search" placeholder="Search with AI intelligence..." oninput="search(this.value)" style="width:100%; padding:18px; background:#111; border:1px solid #222; border-radius:15px; color:#fff; margin-bottom:25px; outline:none; font-size:1rem;">
     
     <div class="scroller" style="margin-bottom:25px;">
-        <button class="btn" style="background:var(--accent); color:#000;" onclick="load('tv')">LATEST SERIES</button>
+        <button class="btn" style="background:var(--accent); color:#000;" onclick="load('tv')">SERIES</button>
         <button class="btn" style="background:#111; color:#fff;" onclick="load('movie')">MOVIES</button>
         <button class="btn" style="background:#111; color:#fff;" onclick="load('ani')">ANIMATIONS</button>
     </div>
 
     <div class="grid" id="main-grid"></div>
-
-    <div style="margin-top:50px;">
-        <p style="color:#444; font-size:0.8rem; margin-bottom:15px; letter-spacing:2px;">RANDOM GENRES</p>
-        <div class="grid" id="genre-grid" style="grid-template-columns: repeat(3, 1fr);"></div>
-    </div>
 </main>
 
 <div id="details-view">
@@ -94,56 +95,57 @@
     </div>
     
     <div style="padding:0 25px; margin-top:-50px; position:relative;">
-        <h1 id="h-title" style="font-size:2.5rem; font-weight:900; line-height:1.1;"></h1>
-        <div style="display:flex; gap:15px; margin:20px 0; color:gold; font-weight:800; font-size:1rem;">
+        <h1 id="h-title" style="font-size:2.2rem; font-weight:900; line-height:1.1;"></h1>
+        <div style="display:flex; gap:15px; margin:20px 0; color:gold; font-weight:800; font-size:0.9rem;">
             <span><i class="fab fa-imdb"></i> <span id="h-rating"></span></span>
             <span id="h-year" style="color:#666;"></span>
-            <span id="h-ep" style="color:var(--accent);"></span>
         </div>
 
-        <div style="display:flex; gap:12px;">
-            <button class="btn btn-ai" onclick="deepAnalyze()"><i class="fas fa-sparkles"></i> AI DEEP ANALYZE (PERSIAN)</button>
-            <button class="btn" id="yt-btn" style="background:#f00; color:#fff;"><i class="fab fa-youtube"></i> TRAILER</button>
-        </div>
+        <button class="btn btn-ai" style="width:100%" onclick="deepAnalyze()"><i class="fas fa-sparkles"></i> AI ANALYSIS (PERSIAN)</button>
 
-        <p id="h-desc" style="color:#888; line-height:1.8; margin-top:25px; font-size:1rem;"></p>
+        <p id="h-desc" style="color:#888; line-height:1.6; margin-top:20px; font-size:0.95rem;"></p>
         <div id="ai-content"></div>
 
-        <h3 style="margin-top:40px; color:var(--accent); font-weight:900;">TOP CAST</h3>
+        <h3 style="margin-top:30px; color:var(--accent); font-size:1rem;">TOP CAST</h3>
         <div class="scroller" id="h-cast"></div>
-
-        <h3 style="margin-top:30px; color:var(--accent); font-weight:900;">SIMILAR TITLES</h3>
-        <div class="scroller" id="h-similar"></div>
     </div>
 </div>
 
 <div class="modal" id="actor-modal">
     <div class="modal-content">
-        <div style="display:flex; gap:20px; align-items:center; margin-bottom:20px;">
-            <img id="a-img" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--ai);">
-            <h2 id="a-name"></h2>
-        </div>
-        <div id="a-bio" style="color:#ccc; font-size:0.95rem; line-height:1.8; max-height:300px; overflow-y:auto;" class="rtl"></div>
-        <button onclick="document.getElementById('actor-modal').style.display='none'" style="width:100%; margin-top:20px; padding:12px; background:var(--ai); border:none; color:#fff; border-radius:12px; font-weight:800; cursor:pointer;">CLOSE</button>
+        <h2 id="a-name"></h2>
+        <div id="a-bio" style="margin-top:15px;" class="rtl"></div>
+        <button onclick="document.getElementById('actor-modal').style.display='none'" style="width:100%; margin-top:20px; padding:12px; background:var(--ai); border:none; color:#fff; border-radius:12px;">CLOSE</button>
     </div>
 </div>
 
 <script>
     const KEY = "20036293ca9656e18bb0410862f95d38";
     const AI_KEY = "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";
-    // ✅ Verified Keys — Added exactly as requested, no deletions
-    const CEREBRAS_KEY = "csk-k6t39ft5rh3md4962kxp55fncrkptyt3nv3kt2xhtkvrendv";
-    const OPENROUTER_KEY = "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";
     let currentItem = null;
+    let deferredPrompt;
 
-    window.addEventListener('popstate', () => {
-        if (document.getElementById('details-view').style.display === 'block') goHome();
+    // ثبت Service Worker برای قابلیت PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(() => console.log("SW Registered"));
+    }
+
+    // شناسایی قابلیت نصب
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('pwa-install').style.display = 'block';
     });
 
+    async function installPWA() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') document.getElementById('pwa-install').style.display = 'none';
+    }
+
     async function init() {
-        history.replaceState({p:'h'}, '');
         load('tv');
-        genGenres();
     }
 
     async function load(type) {
@@ -151,22 +153,17 @@
         let url = `https://api.themoviedb.org/3/trending/${type === 'ani' ? 'tv' : type}/week?api_key=${KEY}`;
         if (type === 'ani') url += `&with_genres=16`;
         const res = await fetch(url).then(r => r.json());
-        const data = await Promise.all(res.results.slice(0,20).map(i =>
-            fetch(`https://api.themoviedb.org/3/${i.name ? 'tv' : 'movie'}/${i.id}?api_key=${KEY}`).then(r => r.json())
-        ));
-        render(data);
+        render(res.results);
         showLoader(false);
     }
 
     function render(data) {
         document.getElementById('main-grid').innerHTML = data.map(i => `
             <div class="item-card" onclick="openDetails(${i.id}, '${i.name ? 'tv' : 'movie'}')">
-                <div class="rating">${i.vote_average ? i.vote_average.toFixed(1) : 'N/A'}</div>
-                ${i.last_episode_to_air ? `<div class="ep-badge">S${i.last_episode_to_air.season_number} E${i.last_episode_to_air.episode_number}</div>` : ''}
-                <img src="https://image.tmdb.org/t/p/w500${i.poster_path || '/no-poster.png'}" onerror="this.src='https://via.placeholder.com/342x513?text=No+Poster'">
+                <div class="rating">${i.vote_average.toFixed(1)}</div>
+                <img src="https://image.tmdb.org/t/p/w500${i.poster_path}">
                 <div class="card-meta">
-                    <h4 style="font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i.name || i.title || 'Untitled'}</h4>
-                    <p style="font-size:0.7rem; color:#555; margin-top:5px; font-weight:800;">${(i.first_air_date || i.release_date || '').split('-')[0] || '—'}</p>
+                    <h4 style="font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${i.name || i.title}</h4>
                 </div>
             </div>
         `).join('');
@@ -174,156 +171,44 @@
 
     async function openDetails(id, type) {
         showLoader(true);
-        history.pushState({p:'d'}, '');
-        const data = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${KEY}&append_to_response=credits,recommendations`).then(r => r.json());
+        const data = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${KEY}&append_to_response=credits`).then(r => r.json());
         currentItem = data;
-
         document.getElementById('list-view').style.display = 'none';
         document.getElementById('details-view').style.display = 'block';
-        window.scrollTo(0, 0);
-
-        document.getElementById('h-backdrop').src = `https://image.tmdb.org/t/p/w1280${data.backdrop_path || data.poster_path || ''}`;
-        document.getElementById('h-title').innerText = data.name || data.title || 'Untitled';
-        document.getElementById('h-rating').innerText = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
-        document.getElementById('h-year').innerText = (data.first_air_date || data.release_date || '').split('-')[0] || '—';
-        document.getElementById('h-ep').innerText = data.last_episode_to_air
-            ? `S${data.last_episode_to_air.season_number} E${data.last_episode_to_air.episode_number}`
-            : 'MOVIE';
-        document.getElementById('h-desc').innerText = data.overview || 'No overview available.';
-        document.getElementById('h-desc').style.display = 'block';
-        document.getElementById('ai-content').innerHTML = '';
-
-        document.getElementById('yt-btn').onclick = () => {
-            const query = encodeURIComponent(`${data.name || data.title} trailer`);
-            window.open(`https://youtube.com/results?search_query=${query}`, '_blank');
-        };
-
-        document.getElementById('h-cast').innerHTML = (data.credits?.cast || []).slice(0,10).map(c => `
-            <div class="actor-pill" onclick="openActor(${c.id})">
-                <img src="https://image.tmdb.org/t/p/w185${c.profile_path || ''}" onerror="this.src='https://via.placeholder.com/85?text=—'">
-                <p>${c.name || 'Unknown'}</p>
+        document.getElementById('h-backdrop').src = `https://image.tmdb.org/t/p/w1280${data.backdrop_path}`;
+        document.getElementById('h-title').innerText = data.name || data.title;
+        document.getElementById('h-rating').innerText = data.vote_average.toFixed(1);
+        document.getElementById('h-desc').innerText = data.overview;
+        document.getElementById('h-cast').innerHTML = data.credits.cast.slice(0,10).map(c => `
+            <div class="actor-pill">
+                <img src="https://image.tmdb.org/t/p/w185${c.profile_path}">
+                <p>${c.name}</p>
             </div>
         `).join('');
-
-        document.getElementById('h-similar').innerHTML = (data.recommendations?.results || []).slice(0,10).map(s => `
-            <img src="https://image.tmdb.org/t/p/w200${s.poster_path || ''}" onerror="this.src='https://via.placeholder.com/120?text=—'" 
-                 onclick="openDetails(${s.id}, '${type}')" 
-                 style="width:120px; border-radius:15px; cursor:pointer;">
-        `).join('');
-
-        showLoader(false);
-    }
-
-    async function openActor(id) {
-        showLoader(true);
-        const a = await fetch(`https://api.themoviedb.org/3/person/${id}?api_key=${KEY}`).then(r => r.json());
-        document.getElementById('a-name').innerText = a.name || 'Unknown';
-        document.getElementById('a-img').src = `https://image.tmdb.org/t/p/w300${a.profile_path || ''}`;
-        document.getElementById('a-bio').innerText = "AI is generating a professional biography...";
-        document.getElementById('actor-modal').style.display = 'flex';
-
-        // AI Actor Bio (using Groq)
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: { 
-                "Authorization": `Bearer ${AI_KEY}`, 
-                "Content-Type": "application/json" 
-            },
-            body: JSON.stringify({
-                messages: [{
-                    role: "user",
-                    content: `Write a professional, 2-paragraph Persian biography for the actor "${a.name}". Focus on their career and best works.`
-                }],
-                model: "llama-3.3-70b-versatile"
-            })
-        }).then(r => r.json()).catch(e => ({ choices: [{ message: { content: "خطا در تولید زیست‌نامه." } }] }));
-
-        document.getElementById('a-bio').innerText = res.choices?.[0]?.message?.content || "ناموفق در تولید.";
         showLoader(false);
     }
 
     async function deepAnalyze() {
         const box = document.getElementById('ai-content');
-        box.innerHTML = `<p style="color:var(--ai); text-align:center; padding:20px;">AI Deep Brain is analyzing the movie database...</p>`;
-        
-        const prompt = `Title: "${currentItem.name || currentItem.title}". 
-        Forget TMDB description. Act as a top movie critic. 
-        Create a Persian JSON:
-        {
-          "story": "یک نقد و بررسی بسیار رسا، طولانی و حرفه‌ای به زبان فارسی درباره این اثر",
-          "why": "۳ دلیل اصلی برای دیدن این اثر (فوق حرفه‌ای)",
-          "spoiler": "تحلیل پایان داستان"
-        }`;
-
+        box.innerHTML = `<p style="color:var(--ai); text-align:center;">AI is analyzing...</p>`;
+        const prompt = `Critique this movie in Persian: ${currentItem.name || currentItem.title}. Return JSON {story: "text", why: "text"}`;
         try {
             const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
-                headers: { 
-                    "Authorization": `Bearer ${AI_KEY}`, 
-                    "Content-Type": "application/json" 
-                },
-                body: JSON.stringify({
-                    messages: [{ role: "user", content: prompt }],
-                    model: "llama-3.3-70b-versatile",
-                    response_format: { type: "json_object" }
-                })
+                headers: { "Authorization": `Bearer ${AI_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: [{ role: "user", content: prompt }], model: "llama-3.3-70b-versatile", response_format: { type: "json_object" } })
             }).then(r => r.json());
-
-            const ai = JSON.parse(res.choices?.[0]?.message?.content || '{}');
-            document.getElementById('h-desc').style.display = 'none';
-            box.innerHTML = `
-                <div class="ai-box rtl">
-                    <h3 style="color:var(--ai); margin-bottom:15px;"><i class="fas fa-magic"></i> تحلیل اختصاصی هوش مصنوعی:</h3>
-                    <p style="font-size:1.1rem; line-height:2; text-align:justify;">${ai.story || 'تحلیل در دسترس نیست.'}</p>
-                    <div style="margin-top:20px; padding:15px; background:rgba(168, 85, 247, 0.05); border-radius:15px; border-left:4px solid var(--ai);">
-                        <h4 style="color:var(--accent)">چرا باید تماشا کنید؟</h4>
-                        <p style="font-size:0.9rem; color:#aaa; margin-top:5px;">${ai.why || '—'}</p>
-                    </div>
-                    <div style="margin-top:20px; cursor:pointer;" onclick="this.lastElementChild.style.filter='none'">
-                        <small style="color:var(--ai)">نمایش تحلیل اسپویلر (کلیک کنید)</small>
-                        <p style="filter:blur(10px); font-size:0.9rem; margin-top:8px; transition:0.4s;">${ai.spoiler || '—'}</p>
-                    </div>
-                </div>`;
-        } catch (e) {
-            console.error("AI Error:", e);
-            box.innerHTML = `<p style="color:#f44; text-align:center;">❌ خطای هوش مصنوعی. لطفاً دوباره امتحان کنید.</p>`;
-        }
-    }
-
-    function genGenres() {
-        const gs = [
-            {id:28,n:'ACTION'}, {id:16,n:'ANIMATION'}, {id:35,n:'COMEDY'},
-            {id:80,n:'CRIME'}, {id:18,n:'DRAMA'}, {id:27,n:'HORROR'},
-            {id:878,n:'SCI-FI'}, {id:9648,n:'MYSTERY'}
-        ];
-        document.getElementById('genre-grid').innerHTML = gs.sort(() => 0.5 - Math.random()).slice(0,6)
-            .map(g => `<div class="genre-box" onclick="loadByGenre(${g.id})">${g.n}</div>`).join('');
-    }
-
-    async function loadByGenre(id) {
-        showLoader(true);
-        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${KEY}&with_genres=${id}`).then(r => r.json());
-        render(res.results || []);
-        window.scrollTo(0, 0);
-        showLoader(false);
-    }
-
-    async function search(q) {
-        if (q.length < 2) return;
-        const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${KEY}&query=${encodeURIComponent(q)}`).then(r => r.json());
-        render((res.results || []).filter(i => i.poster_path));
+            const ai = JSON.parse(res.choices[0].message.content);
+            box.innerHTML = `<div class="ai-box rtl"><h4>تحلیل هوش مصنوعی:</h4><p>${ai.story}</p></div>`;
+        } catch (e) { box.innerHTML = "Error!"; }
     }
 
     function goHome() {
-        history.replaceState({p:'h'}, '');
         document.getElementById('details-view').style.display = 'none';
         document.getElementById('list-view').style.display = 'block';
     }
 
-    function showLoader(s) {
-        document.getElementById('main-loader').style.display = s ? 'flex' : 'none';
-    }
-
+    function showLoader(s) { document.getElementById('main-loader').style.display = s ? 'flex' : 'none'; }
     init();
 </script>
 </body>
