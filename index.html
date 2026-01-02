@@ -11,6 +11,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    // هماهنگ کردن رنگ هدر برنامه با تم تلگرام کاربر
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand(); // باز شدن برنامه به صورت تمام صفحه
+</script>
     <style>
         :root { --bg: #050505; --card: #111; --accent: #00d2ff; --ai: #a855f7; --text: #fff; }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', 'Vazirmatn', sans-serif; }
@@ -324,4 +330,5 @@
 </script>
 </body>
 </html>
+
 
